@@ -28,10 +28,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringArrayResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mayconrob.coinflow.R
 
 @Composable
 fun MonthYearPickerDialog(
@@ -43,19 +46,13 @@ fun MonthYearPickerDialog(
     var selectedYear by remember { mutableIntStateOf(initialYear) }
     var selectedMonth by remember { mutableIntStateOf(initialMonth) }
 
-    val monthNames = remember {
-        listOf(
-            "Jan", "Fev", "Mar", "Abr",
-            "Mai", "Jun", "Jul", "Ago",
-            "Set", "Out", "Nov", "Dez"
-        )
-    }
+    val monthNames = stringArrayResource(R.array.month_abbreviations).toList()
 
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Selecionar Mês e Ano",
+                text = stringResource(R.string.text_select_month_years),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
         },
@@ -70,7 +67,7 @@ fun MonthYearPickerDialog(
                     IconButton(onClick = { selectedYear-- }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                            contentDescription = "Ano Anterior"
+                            contentDescription = stringResource(R.string.cd_text_previous_year)
                         )
                     }
                     Text(
@@ -84,7 +81,7 @@ fun MonthYearPickerDialog(
                     IconButton(onClick = { selectedYear++ }) {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                            contentDescription = "Próximo Ano"
+                            contentDescription = stringResource(R.string.cd_text_next_year)
                         )
                     }
                 }
@@ -121,12 +118,12 @@ fun MonthYearPickerDialog(
                     onDismiss()
                 }
             ) {
-                Text("Confirmar")
+                Text(stringResource(R.string.text_confirm))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.text_cancel))
             }
         }
     )

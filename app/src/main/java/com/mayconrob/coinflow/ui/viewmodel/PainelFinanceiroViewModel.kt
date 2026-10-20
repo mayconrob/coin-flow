@@ -88,29 +88,20 @@ class PainelFinanceiroViewModel @Inject constructor(
 
                 val balanceAtEndOfMonth = incomeUntilEndOfMonth.subtract(expensesUntilEndOfMonth)
 
-                val savingsPct = if (incomeInMonth > BigDecimal.ZERO) {
-                    incomeInMonth.subtract(expensesInMonth)
-                        .multiply(BigDecimal(100))
-                        .divide(incomeInMonth, 2, RoundingMode.HALF_UP)
-                } else {
-                    BigDecimal.ZERO
-                }
-
                 val summary = FinancialSummary(
                     totalIncome = incomeInMonth,
                     totalExpenses = expensesInMonth,
-                    currentBalance = balanceAtEndOfMonth,
-                    savingsPercentage = savingsPct
+                    currentBalance = balanceAtEndOfMonth
                 )
 
                 val consumosOrcamento = categories
                     .filter { it.type == TransactionType.EXIT && it.budgetLimit > BigDecimal.ZERO }
                     .map { category ->
                         val spent = transactions
-                            .filter { 
-                                it.transaction.categoryId == category.id && 
-                                it.transaction.type == TransactionType.EXIT &&
-                                it.transaction.dateTimestamp in startMonth..endMonth
+                            .filter {
+                                (it.transaction.categoryId == category.id) &&
+                                        (it.transaction.type == TransactionType.EXIT) &&
+                                        (it.transaction.dateTimestamp in (startMonth..endMonth))
                             }
                             .fold(BigDecimal.ZERO) { acc, item -> acc.add(item.transaction.amount) }
 
@@ -121,7 +112,7 @@ class PainelFinanceiroViewModel @Inject constructor(
                             BigDecimal.ZERO
                         }
 
-                        ConsumoOrcamentoCategoriaUiState(
+                        OrcamentoCategoriaUiState(
                             categoria = category,
                             totalGasto = spent,
                             porcentagemConsumida = pct

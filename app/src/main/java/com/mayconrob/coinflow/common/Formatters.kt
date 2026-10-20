@@ -123,29 +123,81 @@ object Formatters {
         return Pair(startOf7DaysAgo, endOfToday)
     }
 
-    fun getStartOfDay(timestamp: Long): Long {
-        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        utcCal.timeInMillis = timestamp
-        val year = utcCal.get(Calendar.YEAR)
-        val month = utcCal.get(Calendar.MONTH)
-        val day = utcCal.get(Calendar.DAY_OF_MONTH)
+    fun formatShortDateUtc(utcTimestamp: Long): String {
+        val format = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        return format.format(Date(utcTimestamp))
+    }
 
-        val localCal = Calendar.getInstance()
-        localCal.set(year, month, day, 0, 0, 0)
-        localCal.set(Calendar.MILLISECOND, 0)
+    fun localTimestampToUtcMidnight(localTimestamp: Long): Long {
+        val localCal = Calendar.getInstance().apply {
+            timeInMillis = localTimestamp
+        }
+        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            clear()
+            set(
+                localCal.get(Calendar.YEAR),
+                localCal.get(Calendar.MONTH),
+                localCal.get(Calendar.DAY_OF_MONTH),
+                0, 0, 0
+            )
+            set(Calendar.MILLISECOND, 0)
+        }
+        return utcCal.timeInMillis
+    }
+
+    fun utcMidnightToLocalStartOfDay(utcTimestamp: Long): Long {
+        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = utcTimestamp
+        }
+        val localCal = Calendar.getInstance().apply {
+            set(
+                utcCal.get(Calendar.YEAR),
+                utcCal.get(Calendar.MONTH),
+                utcCal.get(Calendar.DAY_OF_MONTH),
+                0, 0, 0
+            )
+            set(Calendar.MILLISECOND, 0)
+        }
         return localCal.timeInMillis
     }
 
-    fun getEndOfDay(timestamp: Long): Long {
-        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        utcCal.timeInMillis = timestamp
-        val year = utcCal.get(Calendar.YEAR)
-        val month = utcCal.get(Calendar.MONTH)
-        val day = utcCal.get(Calendar.DAY_OF_MONTH)
-
-        val localCal = Calendar.getInstance()
-        localCal.set(year, month, day, 23, 59, 59)
-        localCal.set(Calendar.MILLISECOND, 999)
+    fun utcMidnightToLocalEndOfDay(utcTimestamp: Long): Long {
+        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = utcTimestamp
+        }
+        val localCal = Calendar.getInstance().apply {
+            set(
+                utcCal.get(Calendar.YEAR),
+                utcCal.get(Calendar.MONTH),
+                utcCal.get(Calendar.DAY_OF_MONTH),
+                23, 59, 59
+            )
+            set(Calendar.MILLISECOND, 999)
+        }
         return localCal.timeInMillis
+    }
+
+    fun getStartOfDay(timestamp: Long): Long {
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = timestamp
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return calendar.timeInMillis
+    }
+
+    fun getEndOfDay(timestamp: Long): Long {
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = timestamp
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }
+        return calendar.timeInMillis
     }
 }

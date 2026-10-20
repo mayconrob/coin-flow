@@ -1,10 +1,102 @@
 <resources>
     <string name="app_name">CoinFlow</string>
-    <string name="overview_incomes">Entradas</string>
-    <string name="overview_expenses">Saídas</string>
-    <string name="transaction_type_entry">Entrada</string>
-    <string name="transaction_type_exit">Saída</string>
-    <string name="transaction_type_transfer">Transferência</string>
-
-
+    <string name="text_entry">Entrada</string>
+    <string name="text_exit">Saída</string>
+    <string name="text_dashboard">Dashboard</string>
+    <string name="text_bank_statement">Extrato</string>
+    <string name="title_budget_caps">Tetos de Orçamento</string>
+    <string name="title_latest_transactions">Últimas Transações</string>
+    <string name="text_no_transactions_recorded">Nenhuma transação lançada ainda. Adicione sua primeira transação usando o ícone de adição.</string>
+    <string name="text_exits">Saídas</string>
+    <string name="text_entries">Entradas</string>
+    <string name="cd_option_hide_values">Ocultar valores</string>
+    <string name="cd_option_show_values">Mostrar valores</string>
+    <string name="description_total_balance">Saldo Total</string>
+    <string name="cd_text_add_transaction">Adicionar transação</string>
+    <string name="cd_description_next_month">Próximo Mês</string>
+    <string name="cd_description_previous_month">Mês Anterior</string>
+    <string name="text_attention">Atenção</string>
+    <string name="title_delete_category">Excluir Categoria</string>
+    <string name="text_categories">Categorias</string>
+    <string name="cd_text_hidden_total_balance">Saldo total oculto</string>
+    <string name="label_spent">Gasto: %1$s</string>
+    <string name="text_understood">Entendi</string>
+    <string name="text_cancel">Cancelar</string>
+    <string name="text_delete">Excluir</string>
+    <string name="cd_text_add_category">Adicionar categoria</string>
+    <string name="text_my_categories">Minhas Categorias</string>
+    <string name="cd_text_ceiling">Teto de %1$s</string>
+    <string name="label_ceiling">Teto: %1$s</string>
+    <string name="cd_text_spent">"Gasto de %1$s"</string>
+    <string name="cd_category_progress_value">%1$s: %2$d por cento do teto atingido</string>
+    <string name="text_no_categories_registered">Nenhuma categoria cadastrada. Clique no botão + para adicionar!</string>
+    <string name="text_ceiling_category">" • Teto: %1$s"</string>
+    <string name="text_percentage_value">%1$d%%</string>
+    <string name="cd_text_percentage_value">%1$s gasto do teto da categoria %2$s</string>
+    <string name="cd_text_ceiling_category">"Teto: %1$s"</string>
+    <string name="cd_edit_category">Editar categoria %s</string>
+    <string name="cd_delete_category">Excluir categoria %s</string>
+    <string name="msg_confirm_delete_category">Tem certeza que deseja excluir a categoria \"%s\"?</string>
+    <string name="label_edit_transaction">Editar transação</string>
+    <string name="label_delete_transaction">Excluir transação</string>
+    <string name="formatted_transaction_amount">%1$s%2$s</string>
+    <string name="cd_transaction_date">%s</string>
+    <string name="transaction_date_bullet">" • %1$s"</string>
+    <string name="cd_text_transaction">%1$s</string>
+    <string name="label_positive">"+ "</string>
+    <string name="label_negative">"- "</string>
+    <string name="title_error_default">Ops, algo deu errado</string>
+    <string name="message_error_default">Não foi possível concluir a ação no momento. Tente novamente em instantes.</string>
+    <string name="label_hidden_value">Valor oculto</string>
+    <string name="text_hidden_character">•••••</string>
+    <string name="text_ceiling_spending">%1$d%% utilizado</string>
+    <string name="title_financial_statement">Extrato Financeiro</string>
+    <string name="text_search_transaction">Buscar por descrição</string>
+    <string name="text_today">Hoje</string>
+    <string name="text_last_seven_days">Últimos 7 dias</string>
+    <string name="text_from_to_date">%1$s - %2$s</string>
+    <string name="text_all_types_transaction">Todos os Tipos</string>
+    <string name="text_all_categories">Todas as Categorias</string>
+    <string name="text_period_by_date">Período por Data</string>
+    <string name="label_sort_by">Ordenar por:</string>
+    <string name="most_recent">Mais recentes</string>
+    <string name="text_older">Mais antigas</string>
+    <string name="highest_value">Maior valor</string>
+    <string name="lowest_value">Menor valor</string>
+    <string name="text_nothing_found_for_the_filters">Nenhuma transação encontrada para os filtros selecionados.</string>
+    <string name="text_delete_transaction">Excluir Transação</string>
+    <string name="text_question_delete_transaction">Tem certeza que deseja excluir a transação \"%1$s\" no valor de %2$s?</string>
+    <string name="filter_by_period">Filtrar por Período de Datas</string>
+    <string name="text_select_date_begin_end">Selecione a Data Início e a Data Fim usando o calendário interativo (Dia, Mês e Ano):</string>
+    <string name="begin_date">Data Início</string>
+    <string name="end_date">Data Fim</string>
+    <string name="select_end_date">Escolher Data Fim</string>
+    <string name="message_error_date_range">A Data Início deve ser anterior ou igual à Data Fim</string>
+    <string name="text_confirm">Confirmar</string>
+    <string name="apply_filters">Aplicar Filtro</string>
+    <string name="text_select_month_years">Selecionar Mês e Ano</string>
+    <string name="cd_text_previous_year">Ano Anterior</string>
+    <string name="cd_text_next_year">Próximo Ano</string>
+    <!-- Categorias Iniciais -->
+    <string name="text_category_salary">Salário</string>
+    <string name="text_category_freelance">Freelance</string>
+    <string name="text_category_food">Alimentação</string>
+    <string name="text_category_transport">Transporte</string>
+    <string name="text_category_housing">Moradia</string>
+    <string name="text_category_leisure">Lazer</string>
+    <string name="text_category_health">Saúde</string>
+    <string-array name="month_abbreviations">
+        <item>Jan</item>
+        <item>Fev</item>
+        <item>Mar</item>
+        <item>Abr</item>
+        <item>Mai</item>
+        <item>Jun</item>
+        <item>Jul</item>
+        <item>Ago</item>
+        <item>Set</item>
+        <item>Out</item>
+        <item>Nov</item>
+        <item>Dez</item>
+    </string-array>
 </resources>

@@ -8,7 +8,7 @@ import java.util.Calendar
 
 data class PainelFinanceiroUiState(
     val resumo: FinancialSummary = FinancialSummary(),
-    val consumosOrcamento: List<ConsumoOrcamentoCategoriaUiState> = emptyList(),
+    val consumosOrcamento: List<OrcamentoCategoriaUiState> = emptyList(),
     val ultimasTransacoes: List<TransactionWithCategory> = emptyList(),
     val currentMonthLabel: String = Formatters.getCurrentMonthName(),
     val selectedYear: Int = Calendar.getInstance().get(Calendar.YEAR),

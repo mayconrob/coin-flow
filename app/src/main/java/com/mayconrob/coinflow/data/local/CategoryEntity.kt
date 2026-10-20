@@ -12,6 +12,5 @@ data class CategoryEntity(
     val name: String,
     val type: TransactionType,
     val budgetLimit: BigDecimal = BigDecimal.ZERO, // Teto de orçamento mensal em BigDecimal
-    val colorHex: String = "#3F51B5",
-    val iconName: String = "Category"
+    val colorHex: String = "#3F51B5"
 )

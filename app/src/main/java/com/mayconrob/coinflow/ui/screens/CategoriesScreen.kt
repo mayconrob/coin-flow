@@ -32,6 +32,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,11 +41,14 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mayconrob.coinflow.R
 import com.mayconrob.coinflow.domain.model.Category
 import com.mayconrob.coinflow.domain.enums.TransactionType
 import com.mayconrob.coinflow.ui.theme.AccentIndigo
@@ -55,6 +59,10 @@ import com.mayconrob.coinflow.ui.theme.IncomeGreen
 import com.mayconrob.coinflow.ui.viewmodel.GerenciamentoCategoriasUiState
 import com.mayconrob.coinflow.common.Formatters
 import java.math.BigDecimal
+import androidx.core.graphics.toColorInt
+import timber.log.Timber
+
+private const val ERROR_LOADING_CATEGORIES = "Erro ao carregar categorias: %s"
 
 @Composable
 fun CategoriesScreen(
@@ -67,6 +75,8 @@ fun CategoriesScreen(
 ) {
     var categoryToDelete by remember { mutableStateOf<Category?>(null) }
 
+    val context = LocalContext.current
+
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
@@ -74,10 +84,10 @@ fun CategoriesScreen(
                 containerColor = AccentIndigo,
                 contentColor = MaterialTheme.colorScheme.onPrimary,
                 modifier = Modifier.semantics {
-                    contentDescription = "Adicionar nova categoria"
+                    contentDescription = context.getString(R.string.cd_text_add_category)
                 }
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Adicionar nova categoria")
+                Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
@@ -91,7 +101,7 @@ fun CategoriesScreen(
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             Text(
-                text = "Minhas Categorias",
+                text = stringResource(R.string.text_my_categories),
                 style = MaterialTheme.typography.headlineLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 26.sp
@@ -102,19 +112,27 @@ fun CategoriesScreen(
 
             if (state.categorias.isEmpty()) {
                 Text(
-                    text = "Nenhuma categoria cadastrada. Clique no botão + para adicionar!",
+                    text = stringResource(R.string.text_no_categories_registered),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                     modifier = Modifier.padding(vertical = 24.dp)
                 )
             } else {
-                LazyColumn(modifier = Modifier.fillMaxSize()) {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                ) {
+
                     items(state.categorias) { category ->
                         val isIncome = category.type == TransactionType.ENTRY
-                        val typeLabel = if (isIncome) "Entrada" else "Saída"
+
+                        val typeLabel = if (isIncome) stringResource(R.string.text_entry)
+                        else
+                            stringResource(R.string.text_exit)
+
                         val typeColor = if (isIncome) IncomeGreen else ExpenseRed
                         val catColor = try {
-                            Color(android.graphics.Color.parseColor(category.colorHex))
+                            Color(category.colorHex.toColorInt())
                         } catch (e: Exception) {
                             typeColor
                         }
@@ -129,7 +147,12 @@ fun CategoriesScreen(
                             verticalAlignment = Alignment.CenterVertically,
                             horizontalArrangement = Arrangement.SpaceBetween
                         ) {
-                            Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+                            Row(
+                                verticalAlignment = Alignment.CenterVertically,
+                                modifier = Modifier
+                                    .weight(1f)
+                                    .semantics(mergeDescendants = true) {}
+                            ) {
                                 Box(
                                     modifier = Modifier
                                         .size(36.dp)
@@ -152,9 +175,25 @@ fun CategoriesScreen(
                                         )
                                         if (category.budgetLimit > BigDecimal.ZERO) {
                                             Text(
-                                                text = " • Teto: " + Formatters.formatCurrency(category.budgetLimit),
+                                                text = stringResource(
+                                                    R.string.text_ceiling_category,
+                                                    Formatters.formatCurrency(
+                                                        category.budgetLimit
+                                                    )
+                                                ),
                                                 style = MaterialTheme.typography.bodyMedium,
-                                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
+                                                color = MaterialTheme.colorScheme.onSurface.copy(
+                                                    alpha = 0.6f
+                                                ),
+                                                modifier = Modifier.semantics {
+                                                    contentDescription =
+                                                        context.getString(
+                                                            R.string.cd_text_ceiling_category,
+                                                            Formatters.formatCurrency(
+                                                                category.budgetLimit
+                                                            )
+                                                        )
+                                                }
                                             )
                                         }
                                     }
@@ -170,7 +209,10 @@ fun CategoriesScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Edit,
-                                        contentDescription = "Editar categoria ${category.name}",
+                                        contentDescription = stringResource(
+                                            R.string.cd_edit_category,
+                                            category.name
+                                        ),
                                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -180,7 +222,10 @@ fun CategoriesScreen(
                                 ) {
                                     Icon(
                                         imageVector = Icons.Default.Delete,
-                                        contentDescription = "Excluir categoria ${category.name}",
+                                        contentDescription = stringResource(
+                                            R.string.cd_delete_category,
+                                            category.name
+                                        ),
                                         tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                                         modifier = Modifier.size(20.dp)
                                     )
@@ -200,16 +245,13 @@ fun CategoriesScreen(
             onDismissRequest = { categoryToDelete = null },
             title = {
                 Text(
-                    text = "Excluir Categoria",
+                    text = stringResource(R.string.title_delete_category),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Text(
-                    text = "Tem certeza que deseja excluir a categoria \"${target.name}\"?",
-                    modifier = Modifier.semantics {
-                        contentDescription = "Confirmação de exclusão da categoria ${target.name}"
-                    }
+                    text = stringResource(R.string.msg_confirm_delete_category, target.name)
                 )
             },
             confirmButton = {
@@ -220,22 +262,16 @@ fun CategoriesScreen(
                     },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = ExpenseRed
-                    ),
-                    modifier = Modifier.semantics {
-                        contentDescription = "Botão confirmar exclusão da categoria ${target.name}"
-                    }
+                    )
                 ) {
-                    Text("Excluir")
+                    Text(stringResource(R.string.text_delete))
                 }
             },
             dismissButton = {
                 TextButton(
-                    onClick = { categoryToDelete = null },
-                    modifier = Modifier.semantics {
-                        contentDescription = "Botão cancelar exclusão da categoria ${target.name}"
-                    }
+                    onClick = { categoryToDelete = null }
                 ) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.text_cancel))
                 }
             }
         )
@@ -243,30 +279,31 @@ fun CategoriesScreen(
 
     if (state.errorMessage != null) {
         val errorMsg = state.errorMessage
+
+        // Registra o log no Logcat/Crashlytics apenas quando o erro mudar
+        LaunchedEffect(errorMsg) {
+            Timber.e(ERROR_LOADING_CATEGORIES, errorMsg)
+        }
+
         AlertDialog(
             onDismissRequest = onDismissError,
             title = {
                 Text(
-                    text = "Atenção",
+                    text = stringResource(R.string.title_error_default),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
                 )
             },
             text = {
                 Text(
-                    text = errorMsg,
-                    modifier = Modifier.semantics {
-                        contentDescription = errorMsg
-                    }
+                    text = stringResource(R.string.message_error_default),
+                    style = MaterialTheme.typography.bodyMedium
                 )
             },
             confirmButton = {
                 Button(
-                    onClick = onDismissError,
-                    modifier = Modifier.semantics {
-                        contentDescription = "Entendi"
-                    }
+                    onClick = onDismissError
                 ) {
-                    Text("Entendi")
+                    Text(stringResource(R.string.text_understood))
                 }
             }
         )
