@@ -13,8 +13,7 @@ fun CategoryEntity.toDomain(): Category {
         name = name,
         type = type,
         budgetLimit = budgetLimit,
-        colorHex = colorHex,
-        iconName = iconName
+        colorHex = colorHex
     )
 }
 
@@ -24,8 +23,7 @@ fun Category.toEntity(): CategoryEntity {
         name = name,
         type = type,
         budgetLimit = budgetLimit,
-        colorHex = colorHex,
-        iconName = iconName
+        colorHex = colorHex
     )
 }
 

@@ -25,7 +25,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.mayconrob.coinflow.R
 import com.mayconrob.coinflow.domain.model.Category
 import com.mayconrob.coinflow.domain.model.TransactionWithCategory
 import com.mayconrob.coinflow.ui.components.AddCategoryDialog
@@ -88,10 +90,10 @@ fun MainContent(
                     icon = {
                         Icon(
                             imageVector = Icons.Default.Dashboard,
-                            contentDescription = "Dashboard"
+                            contentDescription = null
                         )
                     },
-                    label = { Text("Dashboard") },
+                    label = { Text(stringResource(R.string.text_dashboard)) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = AccentIndigo,
                         selectedTextColor = AccentIndigo,
@@ -104,10 +106,10 @@ fun MainContent(
                     icon = {
                         Icon(
                             imageVector = Icons.AutoMirrored.Filled.ListAlt,
-                            contentDescription = "Extrato"
+                            contentDescription = null
                         )
                     },
-                    label = { Text("Extrato") },
+                    label = { Text(stringResource(R.string.text_bank_statement)) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = AccentIndigo,
                         selectedTextColor = AccentIndigo,
@@ -120,10 +122,10 @@ fun MainContent(
                     icon = {
                         Icon(
                             imageVector = Icons.Default.Category,
-                            contentDescription = "Categorias"
+                            contentDescription = null
                         )
                     },
-                    label = { Text("Categorias") },
+                    label = { Text(stringResource(R.string.text_categories)) },
                     colors = NavigationBarItemDefaults.colors(
                         selectedIconColor = AccentIndigo,
                         selectedTextColor = AccentIndigo,
@@ -151,6 +153,8 @@ fun MainContent(
                 onSearchQueryChanged = { extratoViewModel.onSearchQueryChanged(it) },
                 onCategoryFilterChanged = { extratoViewModel.onCategoryFilterChanged(it) },
                 onTipoFiltroDataChanged = { extratoViewModel.onTipoFiltroDataChanged(it) },
+                onTipoFiltroTransacaoChanged = { extratoViewModel.onTipoFiltroTransacaoChanged(it) },
+                onOrdemTransacaoChanged = { extratoViewModel.onOrdemTransacaoChanged(it) },
                 onPeriodoDataChanged = { start, end ->
                     extratoViewModel.onPeriodoDataChanged(
                         start,

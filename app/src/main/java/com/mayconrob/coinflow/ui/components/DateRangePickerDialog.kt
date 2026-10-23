@@ -25,8 +25,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mayconrob.coinflow.R
 import com.mayconrob.coinflow.ui.theme.ExpenseRed
 import com.mayconrob.coinflow.common.Formatters
 
@@ -38,26 +41,40 @@ fun DateRangePickerDialog(
     onDismiss: () -> Unit,
     onConfirm: (startTimestamp: Long, endTimestamp: Long) -> Unit
 ) {
-    var selectedStartMillis by remember { mutableStateOf(initialStartTimestamp ?: System.currentTimeMillis()) }
-    var selectedEndMillis by remember { mutableStateOf(initialEndTimestamp ?: System.currentTimeMillis()) }
+    val defaultUtcToday = remember {
+        Formatters.localTimestampToUtcMidnight(System.currentTimeMillis())
+    }
+
+    var selectedStartUtcMillis by remember {
+        mutableStateOf(
+            initialStartTimestamp?.let { Formatters.localTimestampToUtcMidnight(it) } ?: defaultUtcToday
+        )
+    }
+    var selectedEndUtcMillis by remember {
+        mutableStateOf(
+            initialEndTimestamp?.let { Formatters.localTimestampToUtcMidnight(it) } ?: defaultUtcToday
+        )
+    }
 
     var showStartCalendarPicker by remember { mutableStateOf(false) }
     var showEndCalendarPicker by remember { mutableStateOf(false) }
 
     var errorMessage by remember { mutableStateOf<String?>(null) }
 
+    val context = LocalContext.current
+
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
             Text(
-                text = "Filtrar por Período de Datas",
+                text = stringResource(R.string.filter_by_period),
                 style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold)
             )
         },
         text = {
             Column {
                 Text(
-                    text = "Selecione a Data Início e a Data Fim usando o calendário interativo (Dia, Mês e Ano):",
+                    text = stringResource(R.string.text_select_date_begin_end),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
@@ -65,13 +82,13 @@ fun DateRangePickerDialog(
 
                 // Campo de Escolha da Data Início (Somente Seleção por Clique)
                 OutlinedTextField(
-                    value = Formatters.formatShortDate(selectedStartMillis),
+                    value = Formatters.formatShortDateUtc(selectedStartUtcMillis),
                     onValueChange = {},
                     readOnly = true,
                     enabled = false,
-                    label = { Text("Data Início (Dia/Mês/Ano)") },
+                    label = { Text(stringResource(R.string.begin_date)) },
                     trailingIcon = {
-                        Icon(imageVector = Icons.Default.CalendarToday, contentDescription = "Escolher Data Início")
+                        Icon(imageVector = Icons.Default.CalendarToday, contentDescription = null)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -88,13 +105,15 @@ fun DateRangePickerDialog(
 
                 // Campo de Escolha da Data Fim (Somente Seleção por Clique)
                 OutlinedTextField(
-                    value = Formatters.formatShortDate(selectedEndMillis),
+                    value = Formatters.formatShortDateUtc(selectedEndUtcMillis),
                     onValueChange = {},
                     readOnly = true,
                     enabled = false,
-                    label = { Text("Data Fim (Dia/Mês/Ano)") },
+                    label = { Text(stringResource(R.string.end_date)) },
                     trailingIcon = {
-                        Icon(imageVector = Icons.Default.CalendarToday, contentDescription = "Escolher Data Fim")
+                        Icon(imageVector = Icons.Default.CalendarToday, contentDescription = stringResource(
+                            R.string.select_end_date
+                        ))
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -116,23 +135,22 @@ fun DateRangePickerDialog(
         confirmButton = {
             Button(
                 onClick = {
-                    val startOfDay = Formatters.getStartOfDay(selectedStartMillis)
-                    val endOfDay = Formatters.getEndOfDay(selectedEndMillis)
-
-                    if (startOfDay > endOfDay) {
-                        errorMessage = "A Data Início deve ser anterior ou igual à Data Fim"
+                    if (selectedStartUtcMillis > selectedEndUtcMillis) {
+                        errorMessage = context.getString(R.string.message_error_date_range)
                     } else {
+                        val startOfDay = Formatters.utcMidnightToLocalStartOfDay(selectedStartUtcMillis)
+                        val endOfDay = Formatters.utcMidnightToLocalEndOfDay(selectedEndUtcMillis)
                         onConfirm(startOfDay, endOfDay)
                         onDismiss()
                     }
                 }
             ) {
-                Text("Aplicar Filtro")
+                Text(stringResource(R.string.apply_filters))
             }
         },
         dismissButton = {
             TextButton(onClick = onDismiss) {
-                Text("Cancelar")
+                Text(stringResource(R.string.text_cancel))
             }
         }
     )
@@ -140,23 +158,26 @@ fun DateRangePickerDialog(
     // Modal do Calendário Interativo para Data Início
     if (showStartCalendarPicker) {
         val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedStartMillis
+            initialSelectedDateMillis = selectedStartUtcMillis
         )
         DatePickerDialog(
             onDismissRequest = { showStartCalendarPicker = false },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        datePickerState.selectedDateMillis?.let { selectedStartMillis = it }
+                        datePickerState.selectedDateMillis?.let {
+                            selectedStartUtcMillis = it
+                            errorMessage = null
+                        }
                         showStartCalendarPicker = false
                     }
                 ) {
-                    Text("Confirmar")
+                    Text(stringResource(R.string.text_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showStartCalendarPicker = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.text_cancel))
                 }
             }
         ) {
@@ -167,23 +188,26 @@ fun DateRangePickerDialog(
     // Modal do Calendário Interativo para Data Fim
     if (showEndCalendarPicker) {
         val datePickerState = rememberDatePickerState(
-            initialSelectedDateMillis = selectedEndMillis
+            initialSelectedDateMillis = selectedEndUtcMillis
         )
         DatePickerDialog(
             onDismissRequest = { showEndCalendarPicker = false },
             confirmButton = {
                 TextButton(
                     onClick = {
-                        datePickerState.selectedDateMillis?.let { selectedEndMillis = it }
+                        datePickerState.selectedDateMillis?.let {
+                            selectedEndUtcMillis = it
+                            errorMessage = null
+                        }
                         showEndCalendarPicker = false
                     }
                 ) {
-                    Text("Confirmar")
+                    Text(stringResource(R.string.text_confirm))
                 }
             },
             dismissButton = {
                 TextButton(onClick = { showEndCalendarPicker = false }) {
-                    Text("Cancelar")
+                    Text(stringResource(R.string.text_cancel))
                 }
             }
         ) {

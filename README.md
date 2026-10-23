@@ -11,10 +11,10 @@ O **CoinFlow** é um aplicativo Android nativo desenvolvido para ajudar no contr
 
 ## ✨ Funcionalidades
 
-- 📊 **Gestão de Transações:** Cadastro, edição e exclusão de receitas e despesas.
+- 📊 **Gestão de Transações:** Permite cadastrar, editar e excluir entrada e saída financeira de forma simples.
 - 🗂️ **Categorização Inteligente:** Organização de gastos por categorias personalizáveis.
-- 📈 **Painel de Controle (Dashboard):** Visualização clara do saldo total, entradas e saídas.
-- 📜 **Extrato Financeiro Completo:** Histórico detalhado com pesquisa e filtros avançados por período, categoria e descrição das transações.
+- 📈 **Painel de Controle (Dashboard):** Saldo total acumulado, entradas e saídas consolidadas por mês/ano selecionável.
+- 📜 **Extrato Financeiro Completo:** Histórico detalhado com pesquisa e filtros avançados.
 - 💾 **Armazenamento 100% Local:** Seus dados financeiros nunca saem do seu dispositivo.
 - 🎨 **Material 3 Design:** Interface moderna, responsiva e integrada ao Modo Escuro (Dark Theme).
 

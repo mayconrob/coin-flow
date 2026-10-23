@@ -28,12 +28,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mayconrob.coinflow.R
+import com.mayconrob.coinflow.common.Formatters
 import com.mayconrob.coinflow.ui.theme.DarkCardBorder
 import com.mayconrob.coinflow.ui.theme.DarkSurface
-import com.mayconrob.coinflow.common.Formatters
 import java.math.BigDecimal
 
 @Composable
@@ -48,6 +53,8 @@ fun StatCard(
     isValuesVisible: Boolean = true,
     trailingContent: @Composable (() -> Unit)? = null,
 ) {
+    val context = LocalContext.current
+
     Box(
         modifier = modifier
             .fillMaxWidth()
@@ -91,18 +98,28 @@ fun StatCard(
                         AnimatedContent(
                             targetState = isValuesVisible,
                             transitionSpec = {
-                                fadeIn(animationSpec = tween(220)) togetherWith fadeOut(animationSpec = tween(220))
+                                fadeIn(animationSpec = tween(220)) togetherWith fadeOut(
+                                    animationSpec = tween(220)
+                                )
                             },
-                            label = "AmountVisibilityAnimation"
+                            label = ""
                         ) { visible ->
                             Text(
-                                text = if (visible) Formatters.formatCurrency(amount) else "R$ •••••",
+                                text = if (visible) Formatters.formatCurrency(amount) else stringResource(
+                                    R.string.text_hidden_character
+                                ),
                                 style = MaterialTheme.typography.titleMedium.copy(
                                     fontWeight = FontWeight.Bold,
                                     fontSize = 18.sp
                                 ),
                                 maxLines = 1,
-                                color = MaterialTheme.colorScheme.onSurface
+                                color = MaterialTheme.colorScheme.onSurface,
+                                modifier = Modifier.semantics {
+                                    if (!visible) {
+                                        contentDescription =
+                                            context.getString(R.string.label_hidden_value)
+                                    }
+                                }
                             )
                         }
                     }
@@ -133,18 +150,30 @@ fun StatCard(
                 AnimatedContent(
                     targetState = isValuesVisible,
                     transitionSpec = {
-                        fadeIn(animationSpec = tween(220)) togetherWith fadeOut(animationSpec = tween(220))
+                        fadeIn(animationSpec = tween(220)) togetherWith fadeOut(
+                            animationSpec = tween(
+                                220
+                            )
+                        )
                     },
-                    label = "AmountVisibilityAnimation"
+                    label = ""
                 ) { visible ->
                     Text(
-                        text = if (visible) Formatters.formatCurrency(amount) else "R$ •••••",
+                        text = if (visible) Formatters.formatCurrency(amount) else stringResource(
+                            R.string.text_hidden_character
+                        ),
                         style = MaterialTheme.typography.titleMedium.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = 17.sp
                         ),
                         maxLines = 1,
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.semantics {
+                            if (!visible) {
+                                contentDescription =
+                                    context.getString(R.string.label_hidden_value)
+                            }
+                        }
                     )
                 }
             }

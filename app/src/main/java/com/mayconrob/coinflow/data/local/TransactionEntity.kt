@@ -26,5 +26,6 @@ data class TransactionEntity(
     val amount: BigDecimal, // Valor financeiro em java.math.BigDecimal
     val type: TransactionType,
     val categoryId: Long,
+    val note: String? = null,
     val dateTimestamp: Long //Timestamp em Long
 )

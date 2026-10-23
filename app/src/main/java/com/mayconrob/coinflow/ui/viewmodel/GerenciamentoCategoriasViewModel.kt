@@ -37,8 +37,7 @@ class GerenciamentoCategoriasViewModel @Inject constructor(
         viewModelScope.launch {
             categoriaRepository.all.collect { categories ->
                 _uiState.value = _uiState.value.copy(
-                    categorias = categories,
-                    Loading = false
+                    categorias = categories
                 )
             }
         }

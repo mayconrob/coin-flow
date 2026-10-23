@@ -12,7 +12,6 @@ package com.mayconrob.coinflow.ui.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.mayconrob.coinflow.domain.model.TransactionWithCategory
 import com.mayconrob.coinflow.domain.repository.ICategoriaRepository
 import com.mayconrob.coinflow.domain.repository.ITransacaoRepository
 import com.mayconrob.coinflow.domain.model.FinancialSummary
@@ -60,14 +59,14 @@ class PainelFinanceiroViewModel @Inject constructor(
                 // 1. Receitas e Despesas do Mês Selecionado (Primeiro ao Último Milissegundo do Mês)
                 val incomeInMonth = transactions
                     .filter { 
-                        it.transaction.type == TransactionType.INCOME && 
+                        it.transaction.type == TransactionType.ENTRY &&
                         it.transaction.dateTimestamp in startMonth..endMonth 
                     }
                     .fold(BigDecimal.ZERO) { acc, item -> acc.add(item.transaction.amount) }
 
                 val expensesInMonth = transactions
                     .filter { 
-                        it.transaction.type == TransactionType.EXPENSE && 
+                        it.transaction.type == TransactionType.EXIT &&
                         it.transaction.dateTimestamp in startMonth..endMonth 
                     }
                     .fold(BigDecimal.ZERO) { acc, item -> acc.add(item.transaction.amount) }
@@ -75,43 +74,34 @@ class PainelFinanceiroViewModel @Inject constructor(
                 // 2. Saldo Acumulado até o último milissegundo do mês selecionado (ignora transações futuras)
                 val incomeUntilEndOfMonth = transactions
                     .filter { 
-                        it.transaction.type == TransactionType.INCOME && 
+                        it.transaction.type == TransactionType.ENTRY &&
                         it.transaction.dateTimestamp <= endMonth 
                     }
                     .fold(BigDecimal.ZERO) { acc, item -> acc.add(item.transaction.amount) }
 
                 val expensesUntilEndOfMonth = transactions
                     .filter { 
-                        it.transaction.type == TransactionType.EXPENSE && 
+                        it.transaction.type == TransactionType.EXIT &&
                         it.transaction.dateTimestamp <= endMonth 
                     }
                     .fold(BigDecimal.ZERO) { acc, item -> acc.add(item.transaction.amount) }
 
                 val balanceAtEndOfMonth = incomeUntilEndOfMonth.subtract(expensesUntilEndOfMonth)
 
-                val savingsPct = if (incomeInMonth > BigDecimal.ZERO) {
-                    incomeInMonth.subtract(expensesInMonth)
-                        .multiply(BigDecimal(100))
-                        .divide(incomeInMonth, 2, RoundingMode.HALF_UP)
-                } else {
-                    BigDecimal.ZERO
-                }
-
                 val summary = FinancialSummary(
                     totalIncome = incomeInMonth,
                     totalExpenses = expensesInMonth,
-                    currentBalance = balanceAtEndOfMonth,
-                    savingsPercentage = savingsPct
+                    currentBalance = balanceAtEndOfMonth
                 )
 
                 val consumosOrcamento = categories
-                    .filter { it.type == TransactionType.EXPENSE && it.budgetLimit > BigDecimal.ZERO }
+                    .filter { it.type == TransactionType.EXIT && it.budgetLimit > BigDecimal.ZERO }
                     .map { category ->
                         val spent = transactions
-                            .filter { 
-                                it.transaction.categoryId == category.id && 
-                                it.transaction.type == TransactionType.EXPENSE &&
-                                it.transaction.dateTimestamp in startMonth..endMonth
+                            .filter {
+                                (it.transaction.categoryId == category.id) &&
+                                        (it.transaction.type == TransactionType.EXIT) &&
+                                        (it.transaction.dateTimestamp in (startMonth..endMonth))
                             }
                             .fold(BigDecimal.ZERO) { acc, item -> acc.add(item.transaction.amount) }
 
@@ -122,7 +112,7 @@ class PainelFinanceiroViewModel @Inject constructor(
                             BigDecimal.ZERO
                         }
 
-                        ConsumoOrcamentoCategoriaUiState(
+                        OrcamentoCategoriaUiState(
                             categoria = category,
                             totalGasto = spent,
                             porcentagemConsumida = pct
@@ -177,11 +167,5 @@ class PainelFinanceiroViewModel @Inject constructor(
     fun onMonthYearSelected(year: Int, month: Int) {
         _selectedYear.value = year
         _selectedMonth.value = month
-    }
-
-    fun deleteTransaction(item: TransactionWithCategory) {
-        viewModelScope.launch {
-            transacaoRepository.delete(item.transaction)
-        }
     }
 }

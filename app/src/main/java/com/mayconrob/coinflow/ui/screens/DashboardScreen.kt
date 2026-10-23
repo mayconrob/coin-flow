@@ -27,8 +27,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -50,6 +48,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import com.mayconrob.coinflow.R
 import com.mayconrob.coinflow.ui.components.MonthYearPickerDialog
 
 @Composable
@@ -63,18 +66,20 @@ fun DashboardScreen(
     modifier: Modifier = Modifier
 ) {
     var showMonthYearPicker by remember { mutableStateOf(false) }
+    val context = LocalContext.current
 
     Scaffold(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = onAddTransactionClick,
                 containerColor = AccentIndigo,
-                contentColor = MaterialTheme.colorScheme.onPrimary,
-                modifier = Modifier.semantics {
-                    contentDescription = "Adicionar nova transação"
-                }
+                contentColor = MaterialTheme.colorScheme.onPrimary
             ) {
-                Icon(imageVector = Icons.Default.Add, contentDescription = "Adicionar nova transação")
+
+                Icon(
+                    imageVector = Icons.Default.Add,
+                    contentDescription = stringResource(R.string.cd_text_add_transaction)
+                )
             }
         },
         containerColor = MaterialTheme.colorScheme.background,
@@ -89,31 +94,23 @@ fun DashboardScreen(
             item {
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Cabeçalho com Título e Seletor Mês/Ano
+                // Cabeçalho com Seletor Mês/Ano
                 Row(
                     modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
+                    horizontalArrangement = Arrangement.Center
                 ) {
-                    Text(
-                        text = "Visão Geral",
-                        style = MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.Bold,
-                            fontSize = 26.sp
-                        ),
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-
                     // Seletor Mês/Ano com Navegação
                     Card(
                         colors = CardDefaults.cardColors(
                             containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
                         ),
+
                         shape = RoundedCornerShape(20.dp)
                     ) {
                         Row(
                             verticalAlignment = Alignment.CenterVertically,
-                            modifier = Modifier.padding(horizontal = 4.dp, vertical = 2.dp)
+                            modifier = Modifier
+                                .padding(horizontal = 4.dp, vertical = 2.dp)
                         ) {
                             IconButton(
                                 onClick = onPreviousMonth,
@@ -121,7 +118,7 @@ fun DashboardScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                                    contentDescription = "Mês Anterior",
+                                    contentDescription = stringResource(R.string.cd_description_previous_month),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -142,7 +139,7 @@ fun DashboardScreen(
                             ) {
                                 Icon(
                                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-                                    contentDescription = "Próximo Mês",
+                                    contentDescription = stringResource(R.string.cd_description_next_month),
                                     tint = MaterialTheme.colorScheme.primary
                                 )
                             }
@@ -154,7 +151,7 @@ fun DashboardScreen(
 
                 // Card Saldo Atual
                 StatCard(
-                    title = "Saldo Total",
+                    title = stringResource(R.string.description_total_balance),
                     amount = state.resumo.currentBalance,
                     icon = Icons.Default.AccountBalanceWallet,
                     iconTint = AccentIndigo,
@@ -167,12 +164,14 @@ fun DashboardScreen(
                         ) {
                             Icon(
                                 imageVector = if (state.isValuesVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                contentDescription = if (state.isValuesVisible) "Ocultar valores" else "Mostrar valores",
+                                contentDescription = if (state.isValuesVisible) stringResource(R.string.cd_option_hide_values) else
+                                    stringResource(R.string.cd_option_show_values),
                                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                 modifier = Modifier.size(22.dp)
                             )
                         }
-                    }
+                    },
+                    modifier = Modifier.semantics(mergeDescendants = true) {}
                 )
 
                 Spacer(modifier = Modifier.height(12.dp))
@@ -180,23 +179,27 @@ fun DashboardScreen(
                 // Cards Lado a Lado: Entradas vs Saídas
                 Row(modifier = Modifier.fillMaxWidth()) {
                     StatCard(
-                        title = "Receitas",
+                        title = stringResource(R.string.text_entries),
                         amount = state.resumo.totalIncome,
                         icon = Icons.Default.ArrowUpward,
                         iconTint = IncomeGreen,
                         dotColor = IncomeGreen,
                         isValuesVisible = state.isValuesVisible,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .semantics(mergeDescendants = true) {}
                     )
                     Spacer(modifier = Modifier.width(12.dp))
                     StatCard(
-                        title = "Despesas",
+                        title = stringResource(R.string.text_exits),
                         amount = state.resumo.totalExpenses,
                         icon = Icons.Default.ArrowDownward,
                         iconTint = ExpenseRed,
                         dotColor = ExpenseRed,
                         isValuesVisible = state.isValuesVisible,
-                        modifier = Modifier.weight(1f)
+                        modifier = Modifier
+                            .weight(1f)
+                            .semantics(mergeDescendants = true) {}
                     )
                 }
 
@@ -205,14 +208,21 @@ fun DashboardScreen(
                 // Seção Orçamentos por Categoria
                 if (state.consumosOrcamento.isNotEmpty()) {
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .semantics(mergeDescendants = true) {},
                         horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
+                        verticalAlignment = Alignment.CenterVertically,
+
+                        ) {
                         Text(
-                            text = "Tetos de Orçamento",
+                            text = stringResource(R.string.title_budget_caps),
                             style = MaterialTheme.typography.headlineMedium.copy(fontSize = 18.sp),
-                            color = MaterialTheme.colorScheme.onBackground
+                            color = MaterialTheme.colorScheme.onBackground,
+                            modifier = Modifier.semantics {
+                                contentDescription =
+                                    context.getString(R.string.title_budget_caps)
+                            }
                         )
                         Text(
                             text = state.currentMonthLabel,
@@ -232,7 +242,7 @@ fun DashboardScreen(
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    text = "Últimas Transações",
+                    text = stringResource(R.string.title_latest_transactions),
                     style = MaterialTheme.typography.headlineMedium.copy(fontSize = 18.sp),
                     color = MaterialTheme.colorScheme.onBackground
                 )
@@ -242,10 +252,15 @@ fun DashboardScreen(
             if (state.ultimasTransacoes.isEmpty()) {
                 item {
                     Text(
-                        text = "Nenhuma transação lançada ainda. Clique no botão + para adicionar!",
+                        text = stringResource(R.string.text_no_transactions_recorded),
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
-                        modifier = Modifier.padding(vertical = 16.dp)
+                        modifier = Modifier
+                            .padding(vertical = 16.dp)
+                            .semantics {
+                                contentDescription =
+                                    context.getString(R.string.text_no_transactions_recorded)
+                            }
                     )
                 }
             } else {

@@ -23,28 +23,46 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.mayconrob.coinflow.R
 import com.mayconrob.coinflow.ui.theme.AccentIndigo
 import com.mayconrob.coinflow.ui.theme.DarkCardBorder
 import com.mayconrob.coinflow.ui.theme.DarkSurface
 import com.mayconrob.coinflow.ui.theme.ExpenseRed
 import com.mayconrob.coinflow.ui.theme.IncomeGreen
 import com.mayconrob.coinflow.ui.theme.WarningYellow
-import com.mayconrob.coinflow.ui.viewmodel.ConsumoOrcamentoCategoriaUiState
+import com.mayconrob.coinflow.ui.viewmodel.OrcamentoCategoriaUiState
 import com.mayconrob.coinflow.common.Formatters
+import androidx.core.graphics.toColorInt
+import kotlin.math.roundToInt
 
 @Composable
 fun CategoryBudgetCard(
-    consumption: ConsumoOrcamentoCategoriaUiState,
+    consumption: OrcamentoCategoriaUiState,
     modifier: Modifier = Modifier
 ) {
-    val pctDouble = consumption.porcentagemConsumida.toDouble()
+    val percentageDouble = consumption.porcentagemConsumida.toDouble()
+    val context = LocalContext.current
+
     val progressColor = when {
-        pctDouble >= 100.0 -> ExpenseRed
-        pctDouble >= 75.0 -> WarningYellow
+        percentageDouble >= 100.0 -> ExpenseRed
+        percentageDouble >= 70.0 -> WarningYellow
         else -> IncomeGreen
     }
+
+    val percentageInt = percentageDouble.toInt()
+    val visualText = stringResource(R.string.text_percentage_value, percentageInt)
+
+    val accessibilityText = stringResource(
+        R.string.cd_text_percentage_value,
+        visualText,
+        consumption.categoria.name
+    )
 
     Box(
         modifier = modifier
@@ -53,10 +71,12 @@ fun CategoryBudgetCard(
             .background(DarkSurface)
             .border(1.dp, DarkCardBorder, RoundedCornerShape(12.dp))
             .padding(14.dp)
+            .semantics(mergeDescendants = true) {},
     ) {
         Column {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -65,7 +85,7 @@ fun CategoryBudgetCard(
                     modifier = Modifier.weight(1f)
                 ) {
                     val catColor = try {
-                        Color(android.graphics.Color.parseColor(consumption.categoria.colorHex))
+                        Color(consumption.categoria.colorHex.toColorInt())
                     } catch (e: Exception) {
                         AccentIndigo
                     }
@@ -84,18 +104,29 @@ fun CategoryBudgetCard(
                     )
                 }
                 Text(
-                    text = "${pctDouble.toInt()}%",
+                    text = stringResource(R.string.text_percentage_value, percentageInt),
                     style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.Bold),
-                    color = progressColor
+                    color = progressColor,
+                    modifier = Modifier.semantics {
+                        contentDescription =
+                            context.getString(
+                                R.string.text_ceiling_spending,
+                                percentageInt
+                            )
+
+                    }
                 )
             }
             Spacer(modifier = Modifier.height(6.dp))
             LinearProgressIndicator(
-                progress = { (pctDouble / 100.0).coerceIn(0.0, 1.0).toFloat() },
+                progress = { (percentageDouble / 100.0).coerceIn(0.0, 1.0).toFloat() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
-                    .clip(RoundedCornerShape(4.dp)),
+                    .clip(RoundedCornerShape(4.dp))
+                    .semantics {
+                        contentDescription = accessibilityText
+                    },
                 color = progressColor,
                 trackColor = DarkCardBorder,
                 strokeCap = ProgressIndicatorDefaults.LinearStrokeCap,
@@ -106,12 +137,19 @@ fun CategoryBudgetCard(
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
                 Text(
-                    text = "Gasto: " + Formatters.formatCurrency(consumption.totalGasto),
+                    text = stringResource(
+                        R.string.label_spent, Formatters.formatCurrency(
+                            consumption.totalGasto
+                        )
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
                 Text(
-                    text = "Teto: " + Formatters.formatCurrency(consumption.categoria.budgetLimit),
+                    stringResource(
+                        R.string.label_ceiling,
+                        Formatters.formatCurrency(consumption.categoria.budgetLimit)
+                    ),
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
                 )
