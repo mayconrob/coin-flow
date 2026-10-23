@@ -94,23 +94,22 @@ fun AddTransactionDialog(
         },
         text = {
             Column {
-                // Tipo: Receita vs Despesa (clicáveis)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
-                            selectedType = TransactionType.EXPENSE
+                            selectedType = TransactionType.EXIT
                             selectedCategory = null
                         }
                     ) {
                         RadioButton(
-                            selected = selectedType == TransactionType.EXPENSE,
+                            selected = selectedType == TransactionType.EXIT,
                             onClick = {
-                                selectedType = TransactionType.EXPENSE
+                                selectedType = TransactionType.EXIT
                                 selectedCategory = null
                             }
                         )
-                        Text("Despesa", color = ExpenseRed)
+                        Text("Saída", color = ExpenseRed)
                     }
 
                     Spacer(modifier = Modifier.padding(horizontal = 12.dp))
@@ -118,24 +117,23 @@ fun AddTransactionDialog(
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.clickable {
-                            selectedType = TransactionType.INCOME
+                            selectedType = TransactionType.ENTRY
                             selectedCategory = null
                         }
                     ) {
                         RadioButton(
-                            selected = selectedType == TransactionType.INCOME,
+                            selected = selectedType == TransactionType.ENTRY,
                             onClick = {
-                                selectedType = TransactionType.INCOME
+                                selectedType = TransactionType.ENTRY
                                 selectedCategory = null
                             }
                         )
-                        Text("Receita", color = IncomeGreen)
+                        Text("Entrada", color = IncomeGreen)
                     }
                 }
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                // Descrição (Opcional)
                 OutlinedTextField(
                     value = description,
                     onValueChange = { description = it },
@@ -221,7 +219,7 @@ fun AddTransactionDialog(
 
                                 if (filteredCategories.isEmpty()) {
                                     DropdownMenuItem(
-                                        text = { Text("Nenhuma categoria de ${if (selectedType == TransactionType.INCOME) "Receita" else "Despesa"}") },
+                                        text = { Text("Nenhuma categoria de ${if (selectedType == TransactionType.ENTRY) "Entrada" else "Saída"}") },
                                         onClick = { dropdownExpanded = false }
                                     )
                                 } else {
@@ -264,7 +262,7 @@ fun AddTransactionDialog(
                     val finalDescription = description.trim()
 
                     if (type == null) {
-                        errorMessage = "Selecione o tipo da transação (Despesa ou Receita)"
+                        errorMessage = "Selecione o tipo da transação (Entrada ou Saída)"
                     } else if (cleanAmountText.isEmpty() || amount == null) {
                         errorMessage = "Informe o valor da transação"
                     } else if (amount <= BigDecimal.ZERO) {

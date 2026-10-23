@@ -16,7 +16,7 @@ private val DarkColorScheme = darkColorScheme(
     onSurface = TextPrimaryDark
 )
 @Composable
-fun KoinAppTheme(
+fun CoinFlowTheme(
     content: @Composable () -> Unit
 ) {
     MaterialTheme(

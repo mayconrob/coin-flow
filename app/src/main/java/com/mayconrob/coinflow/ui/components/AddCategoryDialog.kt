@@ -71,30 +71,30 @@ fun AddCategoryDialog(
         },
         text = {
             Column {
-                // Tipo (Despesa / Receita clicáveis)
+                // Tipo (Entrada / Saída clicáveis)
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable { selectedType = TransactionType.EXPENSE }
+                        modifier = Modifier.clickable { selectedType = TransactionType.EXIT }
                     ) {
                         RadioButton(
-                            selected = selectedType == TransactionType.EXPENSE,
-                            onClick = { selectedType = TransactionType.EXPENSE }
+                            selected = selectedType == TransactionType.EXIT,
+                            onClick = { selectedType = TransactionType.EXIT }
                         )
-                        Text("Despesa", color = ExpenseRed)
+                        Text("Saída", color = ExpenseRed)
                     }
 
                     Spacer(modifier = Modifier.padding(horizontal = 12.dp))
 
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        modifier = Modifier.clickable { selectedType = TransactionType.INCOME }
+                        modifier = Modifier.clickable { selectedType = TransactionType.ENTRY }
                     ) {
                         RadioButton(
-                            selected = selectedType == TransactionType.INCOME,
-                            onClick = { selectedType = TransactionType.INCOME }
+                            selected = selectedType == TransactionType.ENTRY,
+                            onClick = { selectedType = TransactionType.ENTRY }
                         )
-                        Text("Receita", color = IncomeGreen)
+                        Text("Entrada", color = IncomeGreen)
                     }
                 }
 
@@ -109,7 +109,7 @@ fun AddCategoryDialog(
                     modifier = Modifier.fillMaxWidth()
                 )
 
-                if (selectedType == TransactionType.EXPENSE) {
+                if (selectedType == TransactionType.EXIT) {
                     Spacer(modifier = Modifier.height(8.dp))
                     // Teto de Orçamento
                     OutlinedTextField(
@@ -162,7 +162,7 @@ fun AddCategoryDialog(
                     val type = selectedType
                     val color = selectedColor
                     if (type == null) {
-                        errorMessage = "Selecione o tipo da categoria (Despesa ou Receita)"
+                        errorMessage = "Selecione o tipo da categoria (Entrada ou Saída)"
                     } else if (name.isBlank()) {
                         errorMessage = "Informe o nome da categoria"
                     } else if (color == null) {

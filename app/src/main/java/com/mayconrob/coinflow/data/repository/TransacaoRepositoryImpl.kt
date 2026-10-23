@@ -33,17 +33,17 @@ class TransacaoRepositoryImpl @Inject constructor(
     }
 
     override val totalIncome: Flow<BigDecimal?> = all.map { list ->
-        list.filter { it.transaction.type == TransactionType.INCOME }
+        list.filter { it.transaction.type == TransactionType.ENTRY }
             .fold(BigDecimal.ZERO) { acc, item -> acc.add(item.transaction.amount) }
     }
 
     override val totalExpenses: Flow<BigDecimal?> = all.map { list ->
-        list.filter { it.transaction.type == TransactionType.EXPENSE }
+        list.filter { it.transaction.type == TransactionType.EXIT }
             .fold(BigDecimal.ZERO) { acc, item -> acc.add(item.transaction.amount) }
     }
 
-    override fun getTotalSpentForCategory(categoryId: Long): Flow<BigDecimal?> = all.map { list ->
-        list.filter { it.transaction.categoryId == categoryId && it.transaction.type == TransactionType.EXPENSE }
+    override fun totalExpensesForCategory(categoryId: Long): Flow<BigDecimal?> = all.map { list ->
+        list.filter { it.transaction.categoryId == categoryId && it.transaction.type == TransactionType.EXIT }
             .fold(BigDecimal.ZERO) { acc, item -> acc.add(item.transaction.amount) }
     }
 

@@ -15,6 +15,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.mayconrob.coinflow.R
 import com.mayconrob.coinflow.domain.enums.TransactionType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -23,7 +24,7 @@ import java.math.BigDecimal
 
 @Database(
     entities = [CategoryEntity::class, TransactionEntity::class],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
@@ -41,16 +42,18 @@ abstract class AppDatabase : RoomDatabase() {
                 val instance = Room.databaseBuilder(
                     context.applicationContext,
                     AppDatabase::class.java,
-                    "fincontrol_database"
+                    "coinflow_database"
                 )
-                .addCallback(DatabaseCallback())
-                .build()
+                    .addCallback(DatabaseCallback(context.applicationContext))
+                    .build()
                 INSTANCE = instance
                 instance
             }
         }
 
-        private class DatabaseCallback : Callback() {
+        private class DatabaseCallback(
+            private val context: Context
+        ) : Callback() {
             override fun onCreate(db: SupportSQLiteDatabase) {
                 super.onCreate(db)
                 INSTANCE?.let { database ->
@@ -62,13 +65,46 @@ abstract class AppDatabase : RoomDatabase() {
 
             suspend fun populateInitialCategories(categoryDao: CategoryDao) {
                 val defaultCategories = listOf(
-                    CategoryEntity(name = "Salário", type = TransactionType.INCOME, colorHex = "#4CAF50"),
-                    CategoryEntity(name = "Freelance", type = TransactionType.INCOME, colorHex = "#00BCD4"),
-                    CategoryEntity(name = "Alimentação", type = TransactionType.EXPENSE, budgetLimit = BigDecimal("800.00"), colorHex = "#FF9800"),
-                    CategoryEntity(name = "Transporte", type = TransactionType.EXPENSE, budgetLimit = BigDecimal("350.00"), colorHex = "#3F51B5"),
-                    CategoryEntity(name = "Moradia", type = TransactionType.EXPENSE, budgetLimit = BigDecimal("1500.00"), colorHex = "#9C27B0"),
-                    CategoryEntity(name = "Lazer", type = TransactionType.EXPENSE, budgetLimit = BigDecimal("400.00"), colorHex = "#E91E63"),
-                    CategoryEntity(name = "Saúde", type = TransactionType.EXPENSE, budgetLimit = BigDecimal("300.00"), colorHex = "#F44336")
+                    CategoryEntity(
+                        name = context.getString(R.string.text_category_salary),
+                        type = TransactionType.ENTRY,
+                        colorHex = "#4CAF50"
+                    ),
+                    CategoryEntity(
+                        name = context.getString(R.string.text_category_freelance),
+                        type = TransactionType.ENTRY,
+                        colorHex = "#00BCD4"
+                    ),
+                    CategoryEntity(
+                        name = context.getString(R.string.text_category_food),
+                        type = TransactionType.EXIT,
+                        budgetLimit = BigDecimal("800.00"),
+                        colorHex = "#FF9800"
+                    ),
+                    CategoryEntity(
+                        name = context.getString(R.string.text_category_transport),
+                        type = TransactionType.EXIT,
+                        budgetLimit = BigDecimal("350.00"),
+                        colorHex = "#3F51B5"
+                    ),
+                    CategoryEntity(
+                        name = context.getString(R.string.text_category_housing),
+                        type = TransactionType.EXIT,
+                        budgetLimit = BigDecimal("1500.00"),
+                        colorHex = "#9C27B0"
+                    ),
+                    CategoryEntity(
+                        name = context.getString(R.string.text_category_leisure),
+                        type = TransactionType.EXIT,
+                        budgetLimit = BigDecimal("400.00"),
+                        colorHex = "#E91E63"
+                    ),
+                    CategoryEntity(
+                        name = context.getString(R.string.text_category_health),
+                        type = TransactionType.EXIT,
+                        budgetLimit = BigDecimal("300.00"),
+                        colorHex = "#F44336"
+                    )
                 )
                 categoryDao.insert(defaultCategories)
             }

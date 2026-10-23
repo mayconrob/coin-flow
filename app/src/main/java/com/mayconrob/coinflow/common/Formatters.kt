@@ -1,6 +1,6 @@
 /*
  * CoinFlow - Gestão Financeira Pessoal
- * Copyright (C) 2026 Maycon Roberto @mayconrob
+ * Copyright (C) 2026 Maycon Roberto - GitHub: @mayconrob
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -43,8 +43,18 @@ object Formatters {
         return name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale("pt", "BR")) else it.toString() }
     }
 
-    fun getCurrentMonthRange(): Pair<Long, Long> {
+    fun formatMonthYear(year: Int, month: Int): String {
         val calendar = Calendar.getInstance()
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month)
+        val name = monthYearFormat.format(calendar.time)
+        return name.replaceFirstChar { if (it.isLowerCase()) it.titlecase(Locale("pt", "BR")) else it.toString() }
+    }
+
+    fun getMonthRange(year: Int, month: Int): Pair<Long, Long> {
+        val calendar = Calendar.getInstance()
+        calendar.set(Calendar.YEAR, year)
+        calendar.set(Calendar.MONTH, month)
 
         // Início do Mês: Dia 1 às 00:00:00.000
         calendar.set(Calendar.DAY_OF_MONTH, 1)
@@ -63,6 +73,33 @@ object Formatters {
         val endOfMonth = calendar.timeInMillis
 
         return Pair(startOfMonth, endOfMonth)
+    }
+
+    fun getCurrentMonthRange(): Pair<Long, Long> {
+        val calendar = Calendar.getInstance()
+        val year = calendar.get(Calendar.YEAR)
+        val month = calendar.get(Calendar.MONTH)
+        return getMonthRange(year, month)
+    }
+
+    fun getTodayRange(): Pair<Long, Long> {
+        val calendar = Calendar.getInstance()
+
+        // Início de Hoje: 00:00:00.000
+        calendar.set(Calendar.HOUR_OF_DAY, 0)
+        calendar.set(Calendar.MINUTE, 0)
+        calendar.set(Calendar.SECOND, 0)
+        calendar.set(Calendar.MILLISECOND, 0)
+        val startOfToday = calendar.timeInMillis
+
+        // Fim de Hoje: 23:59:59.999
+        calendar.set(Calendar.HOUR_OF_DAY, 23)
+        calendar.set(Calendar.MINUTE, 59)
+        calendar.set(Calendar.SECOND, 59)
+        calendar.set(Calendar.MILLISECOND, 999)
+        val endOfToday = calendar.timeInMillis
+
+        return Pair(startOfToday, endOfToday)
     }
 
     fun getLast7DaysRange(): Pair<Long, Long> {
@@ -86,29 +123,81 @@ object Formatters {
         return Pair(startOf7DaysAgo, endOfToday)
     }
 
-    fun getStartOfDay(timestamp: Long): Long {
-        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        utcCal.timeInMillis = timestamp
-        val year = utcCal.get(Calendar.YEAR)
-        val month = utcCal.get(Calendar.MONTH)
-        val day = utcCal.get(Calendar.DAY_OF_MONTH)
+    fun formatShortDateUtc(utcTimestamp: Long): String {
+        val format = SimpleDateFormat("dd/MM/yyyy", Locale("pt", "BR")).apply {
+            timeZone = TimeZone.getTimeZone("UTC")
+        }
+        return format.format(Date(utcTimestamp))
+    }
 
-        val localCal = Calendar.getInstance()
-        localCal.set(year, month, day, 0, 0, 0)
-        localCal.set(Calendar.MILLISECOND, 0)
+    fun localTimestampToUtcMidnight(localTimestamp: Long): Long {
+        val localCal = Calendar.getInstance().apply {
+            timeInMillis = localTimestamp
+        }
+        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            clear()
+            set(
+                localCal.get(Calendar.YEAR),
+                localCal.get(Calendar.MONTH),
+                localCal.get(Calendar.DAY_OF_MONTH),
+                0, 0, 0
+            )
+            set(Calendar.MILLISECOND, 0)
+        }
+        return utcCal.timeInMillis
+    }
+
+    fun utcMidnightToLocalStartOfDay(utcTimestamp: Long): Long {
+        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = utcTimestamp
+        }
+        val localCal = Calendar.getInstance().apply {
+            set(
+                utcCal.get(Calendar.YEAR),
+                utcCal.get(Calendar.MONTH),
+                utcCal.get(Calendar.DAY_OF_MONTH),
+                0, 0, 0
+            )
+            set(Calendar.MILLISECOND, 0)
+        }
         return localCal.timeInMillis
     }
 
-    fun getEndOfDay(timestamp: Long): Long {
-        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC"))
-        utcCal.timeInMillis = timestamp
-        val year = utcCal.get(Calendar.YEAR)
-        val month = utcCal.get(Calendar.MONTH)
-        val day = utcCal.get(Calendar.DAY_OF_MONTH)
-
-        val localCal = Calendar.getInstance()
-        localCal.set(year, month, day, 23, 59, 59)
-        localCal.set(Calendar.MILLISECOND, 999)
+    fun utcMidnightToLocalEndOfDay(utcTimestamp: Long): Long {
+        val utcCal = Calendar.getInstance(TimeZone.getTimeZone("UTC")).apply {
+            timeInMillis = utcTimestamp
+        }
+        val localCal = Calendar.getInstance().apply {
+            set(
+                utcCal.get(Calendar.YEAR),
+                utcCal.get(Calendar.MONTH),
+                utcCal.get(Calendar.DAY_OF_MONTH),
+                23, 59, 59
+            )
+            set(Calendar.MILLISECOND, 999)
+        }
         return localCal.timeInMillis
+    }
+
+    fun getStartOfDay(timestamp: Long): Long {
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = timestamp
+            set(Calendar.HOUR_OF_DAY, 0)
+            set(Calendar.MINUTE, 0)
+            set(Calendar.SECOND, 0)
+            set(Calendar.MILLISECOND, 0)
+        }
+        return calendar.timeInMillis
+    }
+
+    fun getEndOfDay(timestamp: Long): Long {
+        val calendar = Calendar.getInstance().apply {
+            timeInMillis = timestamp
+            set(Calendar.HOUR_OF_DAY, 23)
+            set(Calendar.MINUTE, 59)
+            set(Calendar.SECOND, 59)
+            set(Calendar.MILLISECOND, 999)
+        }
+        return calendar.timeInMillis
     }
 }

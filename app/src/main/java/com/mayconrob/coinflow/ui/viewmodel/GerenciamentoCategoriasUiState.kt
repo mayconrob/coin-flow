@@ -5,5 +5,5 @@ import com.mayconrob.coinflow.domain.model.Category
 data class GerenciamentoCategoriasUiState(
     val categorias: List<Category> = emptyList(),
     val errorMessage: String? = null,
-    val estaCarregando: Boolean = false
+    val Loading: Boolean = false
 )

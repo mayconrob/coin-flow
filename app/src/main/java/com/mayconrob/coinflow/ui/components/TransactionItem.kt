@@ -23,9 +23,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.mayconrob.coinflow.R
 import com.mayconrob.coinflow.domain.model.TransactionWithCategory
 import com.mayconrob.coinflow.domain.enums.TransactionType
 import com.mayconrob.coinflow.ui.theme.DarkCardBorder
@@ -41,9 +47,14 @@ fun TransactionItem(
     onEditClick: ((TransactionWithCategory) -> Unit)? = null,
     onDeleteClick: ((TransactionWithCategory) -> Unit)? = null
 ) {
-    val isIncome = item.transaction.type == TransactionType.INCOME
-    val amountPrefix = if (isIncome) "+ " else "- "
+    val context = LocalContext.current
+
+    val isIncome = item.transaction.type == TransactionType.ENTRY
+    val amountPrefix = if (isIncome) stringResource(R.string.label_positive)
+    else stringResource(R.string.label_negative)
+
     val amountColor = if (isIncome) IncomeGreen else ExpenseRed
+    val formattedDate = Formatters.formatShortDate(item.transaction.dateTimestamp)
 
     Row(
         modifier = modifier
@@ -56,7 +67,12 @@ fun TransactionItem(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Row(verticalAlignment = Alignment.CenterVertically, modifier = Modifier.weight(1f)) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .weight(1f)
+                .semantics(mergeDescendants = true) {}
+        ) {
             Column {
                 if (item.transaction.description.isNotBlank()) {
                     Text(
@@ -65,7 +81,13 @@ fun TransactionItem(
                             fontWeight = FontWeight.SemiBold,
                             fontSize = 15.sp
                         ),
-                        color = MaterialTheme.colorScheme.onSurface
+                        color = MaterialTheme.colorScheme.onSurface,
+                        modifier = Modifier.clearAndSetSemantics {
+                            contentDescription = context.getString(
+                                R.string.cd_text_transaction,
+                                item.transaction.description
+                            )
+                        }
                     )
                     Spacer(modifier = Modifier.height(4.dp))
                 }
@@ -76,9 +98,16 @@ fun TransactionItem(
                         color = amountColor
                     )
                     Text(
-                        text = " • " + Formatters.formatShortDate(item.transaction.dateTimestamp),
+                        text = stringResource(R.string.transaction_date_bullet, formattedDate),
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f)
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.5f),
+                        modifier = Modifier.semantics {
+                            contentDescription =
+                                context.getString(
+                                    R.string.cd_transaction_date,
+                                    formattedDate
+                                )
+                        }
                     )
                 }
             }
@@ -86,7 +115,11 @@ fun TransactionItem(
 
         Row(verticalAlignment = Alignment.CenterVertically) {
             Text(
-                text = amountPrefix + Formatters.formatCurrency(item.transaction.amount),
+                text = stringResource(
+                    R.string.formatted_transaction_amount,
+                    amountPrefix,
+                    Formatters.formatCurrency(item.transaction.amount)
+                ),
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = 15.sp
@@ -105,7 +138,7 @@ fun TransactionItem(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Edit,
-                                contentDescription = "Editar transação ${item.transaction.description.ifBlank { item.category.name }}",
+                                contentDescription = stringResource(R.string.label_edit_transaction),
                                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                                 modifier = Modifier.size(20.dp)
                             )
@@ -117,7 +150,7 @@ fun TransactionItem(
                         ) {
                             Icon(
                                 imageVector = Icons.Default.Delete,
-                                contentDescription = "Excluir transação ${item.transaction.description.ifBlank { item.category.name }}",
+                                contentDescription = stringResource(R.string.label_delete_transaction),
                                 tint = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f),
                                 modifier = Modifier.size(20.dp)
                             )
